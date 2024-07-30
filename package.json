@@ -1,6 +1,6 @@
 {
   "name": "ump-services",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Topic Manager and Lookup Service for User Management Protocol",
   "main": "./out/src/index.js",
   "types": "./out/src/index.d.ts",

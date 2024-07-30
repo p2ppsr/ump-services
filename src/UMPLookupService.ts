@@ -6,7 +6,7 @@ import KnexStorageEngine from './KnexStorageEngine'
 /**
  * Implements a Lookup Service for the User Management Protocol
  */
-class UMPLookupService implements LookupService {
+export class UMPLookupService implements LookupService {
   storageEngine: KnexStorageEngine
 
   constructor(storageEngine: KnexStorageEngine) {
@@ -90,5 +90,3 @@ class UMPLookupService implements LookupService {
     }
   }
 }
-
-export default UMPLookupService

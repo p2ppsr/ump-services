@@ -3,6 +3,9 @@ import { LookupService } from '@bsv/overlay'
 import { Script } from '@bsv/sdk'
 import KnexStorageEngine from './KnexStorageEngine'
 
+/**
+ * Implements a Lookup Service for the User Management Protocol
+ */
 class UMPLookupService implements LookupService {
   storageEngine: KnexStorageEngine
 

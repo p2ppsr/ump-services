@@ -1,7 +1,7 @@
 import makeMigrations from './makeMigrations'
 import { Knex } from 'knex'
 
-export default class KnexStorageEngine {
+export class KnexStorageEngine {
   knex: Knex
   tablePrefix: string
   migrations: {

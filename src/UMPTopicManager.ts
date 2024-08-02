@@ -17,7 +17,7 @@ export class UMPTopicManager implements TopicManager {
 
   async getMetaData(): Promise<{ name: string; shortDescription: string; iconURL?: string; version?: string; informationURL?: string }> {
     return {
-      name: 'UMP',
+      name: 'tm_ump',
       shortDescription: 'User Management Protocol'
     }
   }
@@ -32,7 +32,7 @@ export class UMPTopicManager implements TopicManager {
       const parsedTransaction = Transaction.fromBEEF(beef)
       const previousUTXOs = previousCoins.map(x => ({
         txid: (parsedTransaction.inputs[x].sourceTXID || parsedTransaction.inputs[x].sourceTransaction?.id('hex')) as string,
-        vout: parsedTransaction.inputs[x].sourceOutputIndex
+        outputIndex: parsedTransaction.inputs[x].sourceOutputIndex
       }))
 
       // Try to decode and validate transaction outputs
@@ -52,7 +52,7 @@ export class UMPTopicManager implements TopicManager {
               const previousTXID = previousOutpoint.slice(0, 64)
               const previousVout = parseInt(previousOutpoint.slice(64), 16)
 
-              const [previousUTXO] = previousUTXOs.filter(x => x.txid === previousTXID && x.vout === previousVout)
+              const [previousUTXO] = previousUTXOs.filter(x => x.txid === previousTXID && x.outputIndex === previousVout)
               if (!previousUTXO) {
                 throw new Error('Transaction does not spend some issuance output')
               }

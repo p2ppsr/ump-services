@@ -28,12 +28,12 @@ export class UMPLookupService implements LookupService {
    * Notifies the lookup service of a new output added.
    * @param {Object} obj all params are given in an object
    * @param {string} obj.txid the transactionId of the transaction this UTXO is apart of
-   * @param {Number} obj.vout index of the output
+   * @param {Number} obj.outputIndex index of the output
    * @param {Buffer} obj.outputScript the outputScript data for the given UTXO
    * @returns {string} indicating the success status
    */
-  async outputAdded(txid: string, vout: number, outputScript: Script, topic: string) {
-    if (topic !== 'UMP') return
+  async outputAdded(txid: string, outputIndex: number, outputScript: Script, topic: string) {
+    if (topic !== 'tm_ump') return
     // Decode the UMP fields from the Bitcoin outputScript
     const result = pushdrop.decode({
       script: outputScript.toHex(), // Is Buffer form supported by PushDrop?
@@ -47,7 +47,7 @@ export class UMPLookupService implements LookupService {
     // Store UMP fields in the StorageEngine
     await this.storageEngine.storeRecord({
       txid,
-      vout,
+      outputIndex,
       presentationKeyHash, // Should this be presentationHash? CWI-Core uses presentationHash instead of presentationKeyHash...
       recoveryKeyHash
     })
@@ -57,13 +57,13 @@ export class UMPLookupService implements LookupService {
    * Deletes the output record once the UTXO has been spent
    * @param {ob} obj all params given inside an object
    * @param {string} obj.txid the transactionId the transaction the UTXO is apart of
-   * @param {Number} obj.vout the index of the given UTXO
+   * @param {Number} obj.outputIndex the index of the given UTXO
    * @param {string} obj.topic the topic this UTXO is apart of
    * @returns
    */
-  async outputSpent(txid: string, vout: number, topic: string) {
-    if (topic !== 'UMP') return
-    await this.storageEngine.deleteRecord({ txid, vout })
+  async outputSpent(txid: string, outputIndex: number, topic: string) {
+    if (topic !== 'tm_ump') return
+    await this.storageEngine.deleteRecord({ txid, outputIndex })
   }
 
   /**

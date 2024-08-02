@@ -19,14 +19,14 @@ export class KnexStorageEngine {
    * Stores a new UMP record
    * @param {object} obj all params given in an object
    * @param {string} obj.txid the transactionId of the transaction this UTXO is apart of
-   * @param {Number} obj.vout index of the output
+   * @param {Number} obj.outputIndex index of the output
    * @param {String} obj.presentationKeyHash hashed UMP presentation key
    * @param {String} obj.recoveryKeyHash hashed UMP recover key
    */
-  async storeRecord({ txid, vout, presentationKeyHash, recoveryKeyHash }) {
+  async storeRecord({ txid, outputIndex, presentationKeyHash, recoveryKeyHash }) {
     await this.knex(`${this.tablePrefix}users`).insert({
       txid,
-      vout,
+      outputIndex,
       presentationKeyHash,
       recoveryKeyHash
     })
@@ -36,10 +36,10 @@ export class KnexStorageEngine {
    * Deletes an existing UMP record
    * @param {Object} obj all params given in an object
    */
-  async deleteRecord({ txid, vout }) {
+  async deleteRecord({ txid, outputIndex }) {
     await this.knex(`${this.tablePrefix}users`).where({
       txid,
-      vout
+      outputIndex
     }).del()
   }
 
@@ -51,7 +51,7 @@ export class KnexStorageEngine {
   async findByPresentationKeyHash({ presentationKeyHash }) {
     return await this.knex(`${this.tablePrefix}users`).where({
       presentationKeyHash
-    }).select('txid', 'vout')
+    }).select('txid', 'outputIndex')
   }
 
   /**
@@ -62,6 +62,6 @@ export class KnexStorageEngine {
   async findByRecoveryKeyHash({ recoveryKeyHash }) {
     return await this.knex(`${this.tablePrefix}users`).where({
       recoveryKeyHash
-    }).select('txid', 'vout')
+    }).select('txid', 'outputIndex')
   }
 }

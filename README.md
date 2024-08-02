@@ -13,6 +13,7 @@ Links: [API](#api), [Classes](#classes)
 | |
 | --- |
 | [KnexStorageEngine](#class-knexstorageengine) |
+| [UMPLookupService](#class-umplookupservice) |
 | [UMPTopicManager](#class-umptopicmanager) |
 
 Links: [API](#api), [Classes](#classes)
@@ -22,7 +23,7 @@ Links: [API](#api), [Classes](#classes)
 #### Class: KnexStorageEngine
 
 ```ts
-export default class KnexStorageEngine {
+export class KnexStorageEngine {
     knex: Knex;
     tablePrefix: string;
     migrations: {
@@ -30,8 +31,8 @@ export default class KnexStorageEngine {
         down: (knex: Knex) => Promise<void>;
     }[];
     constructor({ knex, tablePrefix = "ump_lookup_" }) 
-    async storeRecord({ txid, vout, presentationKeyHash, recoveryKeyHash }) 
-    async deleteRecord({ txid, vout }) 
+    async storeRecord({ txid, outputIndex, presentationKeyHash, recoveryKeyHash }) 
+    async deleteRecord({ txid, outputIndex }) 
     async findByPresentationKeyHash({ presentationKeyHash }) 
     async findByRecoveryKeyHash({ recoveryKeyHash }) 
 }
@@ -46,7 +47,7 @@ export default class KnexStorageEngine {
 Deletes an existing UMP record
 
 ```ts
-async deleteRecord({ txid, vout }) 
+async deleteRecord({ txid, outputIndex }) 
 ```
 
 Argument Details
@@ -85,13 +86,95 @@ Argument Details
 Stores a new UMP record
 
 ```ts
-async storeRecord({ txid, vout, presentationKeyHash, recoveryKeyHash }) 
+async storeRecord({ txid, outputIndex, presentationKeyHash, recoveryKeyHash }) 
 ```
 
 Argument Details
 
 + **obj**
   + all params given in an object
+
+</details>
+
+Links: [API](#api), [Classes](#classes)
+
+---
+#### Class: UMPLookupService
+
+Implements a Lookup Service for the User Management Protocol
+
+```ts
+export class UMPLookupService implements LookupService {
+    storageEngine: KnexStorageEngine;
+    constructor(storageEngine: KnexStorageEngine) 
+    async getDocumentation(): Promise<string> 
+    async getMetaData(): Promise<{
+        name: string;
+        shortDescription: string;
+        iconURL?: string;
+        version?: string;
+        informationURL?: string;
+    }> 
+    async outputAdded(txid: string, outputIndex: number, outputScript: Script, topic: string) 
+    async outputSpent(txid: string, outputIndex: number, topic: string) 
+    async lookup({ query }) 
+}
+```
+
+<details>
+
+<summary>Class UMPLookupService Details</summary>
+
+##### Method lookup
+
+```ts
+async lookup({ query }) 
+```
+
+Returns
+
+with the data given in an object
+
+Argument Details
+
++ **obj**
+  + all params given in an object
+
+##### Method outputAdded
+
+Notifies the lookup service of a new output added.
+
+```ts
+async outputAdded(txid: string, outputIndex: number, outputScript: Script, topic: string) 
+```
+
+Returns
+
+indicating the success status
+
+Argument Details
+
++ **obj**
+  + all params are given in an object
+
+##### Method outputSpent
+
+Deletes the output record once the UTXO has been spent
+
+```ts
+async outputSpent(txid: string, outputIndex: number, topic: string) 
+```
+
+Argument Details
+
++ **obj**
+  + all params given inside an object
++ **obj.txid**
+  + the transactionId the transaction the UTXO is apart of
++ **obj.outputIndex**
+  + the index of the given UTXO
++ **obj.topic**
+  + the topic this UTXO is apart of
 
 </details>
 

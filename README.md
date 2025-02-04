@@ -1,228 +1,55 @@
-# signia-services
+# BSV Project
 
-Topic Manager and Lookup Service for Signia Key Registry
+Standard BSV project structure.
 
-## API
+Helpful Links:
 
-<!--#region ts2md-api-merged-here-->
+- [LARS (for local development)](https://github.com/bitcoin-sv/lars)
+- [CARS CLI (for cloud deployment)](https://github.com/bitcoin-sv/cars-cli)
+- [RUN YOUR OWN CARS NODE](https://github.com/bitcoin-sv/cars-node)
+- [Specification for deployment-info.json](https://github.com/bitcoin-sv/BRCs/blob/master/apps/0102.md)
 
-Links: [API](#api), [Classes](#classes)
+## Getting Started
 
-### Classes
+- Clone this repository
+- Run `npm i` to install dependencies
+- Run `npm run lars` to configure the local environment according to your needs
+- Use `npm run start` to spin up and start writing code
+- When you're ready to publish your project, start by running `npm run cars` and configuring one (or, especially for overlays, ideally multiple) hosting provider(s)
+- For each of your configurations, execute `npm run build` to create CARS project artifacts
+- Deploy with `npm run deploy` and your project will be online
+- Use `cars` interactively, or visit your hosting provider(s) web portals, to view logs, configure custom domains, and pay your hosting bills
+- Share your new BSV project, it is now online!
 
-| |
-| --- |
-| [KnexStorageEngine](#class-knexstorageengine) |
-| [UMPLookupService](#class-umplookupservice) |
-| [UMPTopicManager](#class-umptopicmanager) |
+## Directory Structure
 
-Links: [API](#api), [Classes](#classes)
+The project structure is roughly as follows, although it can vary by project.
 
----
-
-#### Class: KnexStorageEngine
-
-```ts
-export class KnexStorageEngine {
-    knex: Knex;
-    tablePrefix: string;
-    migrations: {
-        up: (knex: Knex) => Promise<void>;
-        down: (knex: Knex) => Promise<void>;
-    }[];
-    constructor({ knex, tablePrefix = "ump_lookup_" }) 
-    async storeRecord({ txid, outputIndex, presentationKeyHash, recoveryKeyHash }) 
-    async deleteRecord({ txid, outputIndex }) 
-    async findByPresentationKeyHash({ presentationKeyHash }) 
-    async findByRecoveryKeyHash({ recoveryKeyHash }) 
-}
+```
+| - deployment-info.json
+| - package.json
+| - local-data/
+| - frontend/
+  | - package.json
+  | - webpack.config.js
+  | - src/...
+  | - public/...
+  | - build/...
+| - backend/
+  | - package.json
+  | - tsconfig.json
+  | - mod.ts
+  | - src/
+    | - contracts/...
+    | - lookup-services/...
+    | - topic-managers/...
+    | - script-templates/...
+  | - artifacts/
+  | - dist/
 ```
 
-<details>
-
-<summary>Class KnexStorageEngine Details</summary>
-
-##### Method deleteRecord
-
-Deletes an existing UMP record
-
-```ts
-async deleteRecord({ txid, outputIndex }) 
-```
-
-Argument Details
-
-+ **obj**
-  + all params given in an object
-
-##### Method findByPresentationKeyHash
-
-Look up a UMP record by the presentationKeyHash
-
-```ts
-async findByPresentationKeyHash({ presentationKeyHash }) 
-```
-
-Argument Details
-
-+ **obj**
-  + params given in an object
-
-##### Method findByRecoveryKeyHash
-
-Look up a UMP record by the recoverKeyHash
-
-```ts
-async findByRecoveryKeyHash({ recoveryKeyHash }) 
-```
-
-Argument Details
-
-+ **obj**
-  + params given in an object
-
-##### Method storeRecord
-
-Stores a new UMP record
-
-```ts
-async storeRecord({ txid, outputIndex, presentationKeyHash, recoveryKeyHash }) 
-```
-
-Argument Details
-
-+ **obj**
-  + all params given in an object
-
-</details>
-
-Links: [API](#api), [Classes](#classes)
-
----
-#### Class: UMPLookupService
-
-Implements a Lookup Service for the User Management Protocol
-
-```ts
-export class UMPLookupService implements LookupService {
-    storageEngine: KnexStorageEngine;
-    constructor(storageEngine: KnexStorageEngine) 
-    async getDocumentation(): Promise<string> 
-    async getMetaData(): Promise<{
-        name: string;
-        shortDescription: string;
-        iconURL?: string;
-        version?: string;
-        informationURL?: string;
-    }> 
-    async outputAdded(txid: string, outputIndex: number, outputScript: Script, topic: string) 
-    async outputSpent(txid: string, outputIndex: number, topic: string) 
-    async lookup({ query }) 
-}
-```
-
-<details>
-
-<summary>Class UMPLookupService Details</summary>
-
-##### Method lookup
-
-```ts
-async lookup({ query }) 
-```
-
-Returns
-
-with the data given in an object
-
-Argument Details
-
-+ **obj**
-  + all params given in an object
-
-##### Method outputAdded
-
-Notifies the lookup service of a new output added.
-
-```ts
-async outputAdded(txid: string, outputIndex: number, outputScript: Script, topic: string) 
-```
-
-Returns
-
-indicating the success status
-
-Argument Details
-
-+ **obj**
-  + all params are given in an object
-
-##### Method outputSpent
-
-Deletes the output record once the UTXO has been spent
-
-```ts
-async outputSpent(txid: string, outputIndex: number, topic: string) 
-```
-
-Argument Details
-
-+ **obj**
-  + all params given inside an object
-+ **obj.txid**
-  + the transactionId the transaction the UTXO is apart of
-+ **obj.outputIndex**
-  + the index of the given UTXO
-+ **obj.topic**
-  + the topic this UTXO is apart of
-
-</details>
-
-Links: [API](#api), [Classes](#classes)
-
----
-#### Class: UMPTopicManager
-
-Implements a topic manager for User Management Protocol
-
-```ts
-export class UMPTopicManager implements TopicManager {
-    identifyNeededInputs?: ((beef: number[]) => Promise<Array<{
-        txid: string;
-        outputIndex: number;
-    }>>) | undefined;
-    async getDocumentation(): Promise<string> 
-    async getMetaData(): Promise<{
-        name: string;
-        shortDescription: string;
-        iconURL?: string;
-        version?: string;
-        informationURL?: string;
-    }> 
-    async identifyAdmissibleOutputs(beef: number[], previousCoins: number[]): Promise<AdmittanceInstructions> 
-}
-```
-
-<details>
-
-<summary>Class UMPTopicManager Details</summary>
-
-##### Method identifyAdmissibleOutputs
-
-Returns the outputs from the UMP transaction that are admissible.
-
-```ts
-async identifyAdmissibleOutputs(beef: number[], previousCoins: number[]): Promise<AdmittanceInstructions> 
-```
-
-</details>
-
-Links: [API](#api), [Classes](#classes)
-
----
-
-<!--#endregion ts2md-api-merged-here-->
+The one constant is `deployment-info.json`.
 
 ## License
 
-The license for the code in this repository is the Open BSV License.
+[Open BSV License](./LICENSE.txt)

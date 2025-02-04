@@ -1,16 +1,16 @@
-import pushdrop from 'pushdrop'
 import { LookupService } from '@bsv/overlay'
-import { Script } from '@bsv/sdk'
-import { KnexStorageEngine } from './KnexStorageEngine'
+import { Script, PushDrop, Utils } from '@bsv/sdk'
+import { UMPRecord, UTXOReference } from '../types.js'
+import { Db, Collection } from 'mongodb'
 
 /**
  * Implements a Lookup Service for the User Management Protocol
  */
-export class UMPLookupService implements LookupService {
-  storageEngine: KnexStorageEngine
+class UMPLookupService implements LookupService {
+  records: Collection<UMPRecord>
 
-  constructor(storageEngine: KnexStorageEngine) {
-    this.storageEngine = storageEngine
+  constructor(db: Db) {
+    this.records = db.collection<UMPRecord>('ump')
   }
 
   async getDocumentation(): Promise<string> {
@@ -35,21 +35,18 @@ export class UMPLookupService implements LookupService {
   async outputAdded(txid: string, outputIndex: number, outputScript: Script, topic: string) {
     if (topic !== 'tm_ump') return
     // Decode the UMP fields from the Bitcoin outputScript
-    const result = pushdrop.decode({
-      script: outputScript.toHex(), // Is Buffer form supported by PushDrop?
-      fieldFormat: 'buffer'
-    })
+    const result = PushDrop.decode(outputScript)
 
-    // UMP Account Fields to store
-    const presentationKeyHash = result.fields[8].toString('base64')
-    const recoveryKeyHash = result.fields[10].toString('base64')
+    // UMP Account Fields to store (from the UMP protocol's PushDrop field order)
+    const presentationHash = Utils.toHex(result.fields[6])
+    const recoveryHash = Utils.toHex(result.fields[7])
 
-    // Store UMP fields in the StorageEngine
-    await this.storageEngine.storeRecord({
+    // Store UMP fields in db
+    await this.records.insertOne({
       txid,
       outputIndex,
-      presentationKeyHash, // Should this be presentationHash? CWI-Core uses presentationHash instead of presentationKeyHash...
-      recoveryKeyHash
+      presentationHash,
+      recoveryHash
     })
   }
 
@@ -63,7 +60,7 @@ export class UMPLookupService implements LookupService {
    */
   async outputSpent(txid: string, outputIndex: number, topic: string) {
     if (topic !== 'tm_ump') return
-    await this.storageEngine.deleteRecord({ txid, outputIndex })
+    await this.records.deleteOne({ txid, outputIndex })
   }
 
   /**
@@ -72,21 +69,28 @@ export class UMPLookupService implements LookupService {
    * @param {object} obj.query lookup query given as an object
    * @returns {object} with the data given in an object
    */
-  async lookup({ query }) {
+  async lookup({ query }: any): Promise<UTXOReference[]> {
     // Validate Query
     if (!query) {
       throw new Error('Lookup must include a valid query!')
     }
-    if (query.presentationKeyHash) {
-      return await this.storageEngine.findByPresentationKeyHash({
-        presentationKeyHash: query.presentationKeyHash
-      })
-    } else if (query.recoveryKeyHash) {
-      return await this.storageEngine.findByRecoveryKeyHash({
-        recoveryKeyHash: query.recoveryKeyHash
-      })
+    if (query.presentationHash) {
+      const result = await this.records.findOne({ presentationHash: query.presentationHash })
+      if (!result) return []
+      return [{ txid: result.txid, outputIndex: result.outputIndex }]
+    } else if (query.recoveryHash) {
+      const result = await this.records.findOne({ recoveryHash: query.recoeryHash })
+      if (!result) return []
+      return [{ txid: result.txid, outputIndex: result.outputIndex }]
+    } else if (query.outpoint) {
+      const [txid, outputIndex] = (query.outpoint as string).split('.')
+      const result = await this.records.findOne({ txid, outputIndex: Number(outputIndex) })
+      if (!result) return []
+      return [{ txid: result.txid, outputIndex: result.outputIndex }]
     } else {
-      throw new Error('Query parameters must include presentationKeyHash or recoveryKeyHash!')
+      throw new Error('Query parameters must include presentationHash, recoveryHash, or outpoint!')
     }
   }
 }
+
+export default (db: Db) => new UMPLookupService(db);

@@ -33,7 +33,7 @@ class UMPLookupService implements LookupService {
    * @returns {string} indicating the success status
    */
   async outputAdded(txid: string, outputIndex: number, outputScript: Script, topic: string) {
-    if (topic !== 'tm_ump') return
+    if (topic !== 'tm_users') return
     // Decode the UMP fields from the Bitcoin outputScript
     const result = PushDrop.decode(outputScript)
 
@@ -59,7 +59,7 @@ class UMPLookupService implements LookupService {
    * @returns
    */
   async outputSpent(txid: string, outputIndex: number, topic: string) {
-    if (topic !== 'tm_ump') return
+    if (topic !== 'tm_users') return
     await this.records.deleteOne({ txid, outputIndex })
   }
 

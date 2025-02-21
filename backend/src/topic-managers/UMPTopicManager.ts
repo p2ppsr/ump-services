@@ -13,8 +13,8 @@ export default class UMPTopicManager implements TopicManager {
 
   async getMetaData(): Promise<{ name: string; shortDescription: string; iconURL?: string; version?: string; informationURL?: string }> {
     return {
-      name: 'tm_ump',
-      shortDescription: 'User Management Protocol'
+      name: 'User Management Protocol',
+      shortDescription: 'Manages CWI-style wallet account descriptors.'
     }
   }
 

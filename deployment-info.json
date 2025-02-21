@@ -2,10 +2,10 @@
   "schema": "bsv-app",
   "schemaVersion": "1.0",
   "topicManagers": {
-    "tm_meter": "./backend/src/topic-managers/UMPTopicManager.ts"
+    "tm_users": "./backend/src/topic-managers/UMPTopicManager.ts"
   },
   "lookupServices": {
-    "ls_meter": {
+    "ls_users": {
       "serviceFactory": "./backend/src/lookup-services/UMPLookupServiceFactory.ts",
       "hydrateWith": "mongo"
     }

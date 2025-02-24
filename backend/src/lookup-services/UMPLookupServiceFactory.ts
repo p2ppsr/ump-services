@@ -79,7 +79,7 @@ class UMPLookupService implements LookupService {
       if (!result) return []
       return [{ txid: result.txid, outputIndex: result.outputIndex }]
     } else if (query.recoveryHash) {
-      const result = await this.records.findOne({ recoveryHash: query.recoeryHash })
+      const result = await this.records.findOne({ recoveryHash: query.recoveryHash })
       if (!result) return []
       return [{ txid: result.txid, outputIndex: result.outputIndex }]
     } else if (query.outpoint) {

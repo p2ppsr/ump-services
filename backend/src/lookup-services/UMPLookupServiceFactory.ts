@@ -2,6 +2,7 @@ import { LookupService } from '@bsv/overlay'
 import { Script, PushDrop, Utils } from '@bsv/sdk'
 import { UMPRecord, UTXOReference } from '../types.js'
 import { Db, Collection } from 'mongodb'
+import umpLookupDocs from './UMPLookupDocs.md.js'
 
 /**
  * Implements a Lookup Service for the User Management Protocol
@@ -14,7 +15,7 @@ class UMPLookupService implements LookupService {
   }
 
   async getDocumentation(): Promise<string> {
-    return '# UMP Lookup Service'
+    return umpLookupDocs
   }
 
   async getMetaData(): Promise<{ name: string; shortDescription: string; iconURL?: string; version?: string; informationURL?: string }> {

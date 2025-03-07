@@ -1,5 +1,6 @@
 import { AdmittanceInstructions, TopicManager } from '@bsv/overlay'
 import { Transaction, PushDrop } from '@bsv/sdk'
+import umpTopicDocs from './UMPTopicDocs.md.js'
 
 /**
  * Implements a topic manager for User Management Protocol
@@ -8,7 +9,7 @@ import { Transaction, PushDrop } from '@bsv/sdk'
 export default class UMPTopicManager implements TopicManager {
   identifyNeededInputs?: ((beef: number[]) => Promise<Array<{ txid: string; outputIndex: number }>>) | undefined
   async getDocumentation(): Promise<string> {
-    return '# User Management Protocol'
+    return umpTopicDocs
   }
 
   async getMetaData(): Promise<{ name: string; shortDescription: string; iconURL?: string; version?: string; informationURL?: string }> {

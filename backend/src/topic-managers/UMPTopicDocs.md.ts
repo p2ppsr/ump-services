@@ -1,4 +1,4 @@
-export default `# Meter Topic Manager Docs
+export default `# User Management Protocol Topic Manager Docs
 
 To have outputs accepted into the Meter overlay network, use the Meter sCrypt contract to create valid locking scripts.
 
